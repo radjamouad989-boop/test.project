@@ -886,29 +886,59 @@ document.getElementById('modalOverlay').addEventListener('click', function(e) {
 if (e.target === this) closeModal();
 });
 </script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- تضمين مكتبة Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-  // إعدادات الاتصال بقاعدة البيانات تاعك
-  const SUPABASE_URL = "https://jinadzehlmryeckeykaw.supabase.co";
-  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImppbmFkemVobW1yeWVja2V5a2F3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwMzkxMjIsImV4cCI6MjA2NjYxNTEyMn0.u6Oxlk-8_0hLp1AIs7H9UvIdVbN27fG661R-7N0P-kI"; 
-  
-  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// 1. كود التحكم في القائمة الجانبية والمودال (الكود الأصلي تاعك)
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
 
-  // دالة لإرسال البيانات من الفورم للجدول
-  async function saveData(name, email, message) {
-    const { data, error } = await supabase
-      .from('site_users')
-      .insert([{ name: name, email: email, message: message }]);
+document.getElementById('modalOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
 
-    if (error) {
-      console.error("خطأ في الحفظ:", error.message);
-      alert("صرات غلطة في حفظ البيانات!");
-    } else {
-      console.log("تم الحفظ بنجاح:", data);
-      alert("تم إرسال معلوماتك بنجاح لـ Supabase!");
-    }
+// 2. إعدادات الاتصال بـ Supabase (مع المفتاح السري الصحيح تاعك)
+const SUPABASE_URL = "https://jinadzehlmryeckeykaw.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImppbmFkemVobW1yeWVja2V5a2F3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwMzkxMjIsImV4cCI6MjA2NjYxNTEyMn0.u6Oxlk-8_0hLp1AIs7H9UvIdVbN27fG661R-7N0P-kI"; 
+
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// 3. دالة إرسال البيانات إلى جدول قاعدة البيانات
+async function saveData(name, email, message) {
+  const { data, error } = await supabase
+    .from('site_users')
+    .insert([{ name: name, email: email, message: message }]);
+
+  if (error) {
+    console.error("خطأ في الحفظ:", error.message);
+    alert("صرات غلطة أثناء إرسال البيانات!");
+  } else {
+    console.log("تم الحفظ بنجاح:", data);
+    alert("تم تسجيل البريد الإلكتروني بنجاح في قاعدة البيانات!");
+    if (typeof closeModal === 'function') closeModal();
   }
+}
+
+// 4. لقط حدث الضغط على زر تسجيل الدخول وإرسال الإيميل تلقائياً
+document.addEventListener('click', async function(e) {
+  if (e.target && (e.target.innerText === 'تسجيل الدخول' || e.target.type === 'submit')) {
+    e.preventDefault(); // منع الصفحة من التحديث
+
+    // جلب خانة الإيميل الديناميكية من المودال
+    const emailInput = document.querySelector('input[type="email"]') || document.querySelector('.form-group input');
+    const email = emailInput ? emailInput.value : '';
+
+    if (!email) {
+      alert("من فضلك أدخل البريد الإلكتروني أولاً!");
+      return;
+    }
+
+    // إرسال الإيميل للجدول في Supabase
+    await saveData('مستخدم موقع', email, 'تسجيل دخول عبر المنصة الذكية');
+  }
+});
 </script>
 </body>
 </html>
